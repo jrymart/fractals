@@ -44,22 +44,37 @@ class FractalFeature:
             conditioned_y = conditioned_y+rows_to_add
 
     def covering_score(covering, x_length, y_length):
+        """
+        This "scores" a covering based on how close below it is the size of a new deisred covering
+        """
         covering_score = covering.x_length/x_length+covering.y_length/y_length
         if covering_score>2:
             covering_score = -1
         return covering_score
 
     def get_closest_covering(self, x_length, y_length):
+        """
+        Returns the cloest below covering to the size of a desired new covering
+        """
         closest_covering = max(self.coverings, key=lambda c: covering_score(c, x_length, y_length))
         return closest_covering
 
     def get_valid_subcoverings(self, x_length, y_length):
+        """
+        Returns only coverings of sizes that are proper divisors of the desired covering size
+        """
         return [covering from self.coverings if (covering.x_length%x_length) + (covering.y_length%y_length)==0]
 
     def get_cloest_valid_subcovering(self)
+        """
+        Returns the closest below covering that is a proper divisor of the deisred covering size
+        """
         closest_covering = max(get_valid_subcoverings(self, key=lambda c: covering_score(c, x_length, y_length))
 
     def generate_covering(self, x_length, y_length):
+        """
+        Generates a new fractal object of the desired size
+        """
         condition_grid(x_length, y_length)
         conditioned_x, conditioned_y = self.conditioned_grid.shape
         x_segments = conditioned_x/x_length
@@ -68,8 +83,12 @@ class FractalFeature:
             list(map(np,sum, np.split(row_chunk,y_segments, axis=1)))
             for row_chunk in np.split(self.feature_raster, x_segments, axis=0)]
         covering = covering[covering>0]=1
+        return covering
 
     def generate_covering_from_existing(self, x_length, y_length):
+        """
+        Generates a new fractal object of the desired size from the closest existing covering
+        """
         closest_covering = get_closest_valid_covering(x_length, y_length)
         if cloest_covering==self:
             covering = generate_covering(x_length, y_length)
