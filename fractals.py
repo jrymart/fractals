@@ -59,14 +59,8 @@ class FractalFeature:
     def get_cloest_valid_subcovering(self)
         closest_covering = max(get_valid_subcoverings(self, key=lambda c: covering_score(c, x_length, y_length))
 
-    def generate_covering(x_length, y_length, smart=True):
-        closest_covering = get_closest_valid_covering(x_length, y_length)
-        if closest_covering!==self:
-            x_length= x_length/closest_covering.x_length
-            y_length = y_length/closest_covering.y_length
-            covering = generate_covering(closest_covering, x_length, y_length, smart)
-
-        conditioned_grid(x_length, y_length)
+    def generate_covering(self, x_length, y_length):
+        condition_grid(x_length, y_length)
         conditioned_x, conditioned_y = self.conditioned_grid.shape
         x_segments = conditioned_x/x_length
         y_segments = conditioned_y/y_length
@@ -74,3 +68,13 @@ class FractalFeature:
             list(map(np,sum, np.split(row_chunk,y_segments, axis=1)))
             for row_chunk in np.split(self.feature_raster, x_segments, axis=0)]
         covering = covering[covering>0]=1
+
+    def generate_covering_from_existing(self, x_length, y_length):
+        closest_covering = get_closest_valid_covering(x_length, y_length)
+        if cloest_covering==self:
+            covering = generate_covering(x_length, y_length)
+        else:
+            x_length= x_length/closest_covering.x_length
+            y_length = y_length/closest_covering.y_length
+            covering = closest_covering.generat_covering_from_existing(x_length, y_length)
+        self.coverings.append(covering)
