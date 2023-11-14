@@ -1,21 +1,35 @@
 #!/usr/bin/env python3
 
 class BoxCovering:
-    x_length = None
-    y_length = None
-    covering_array = None # a numpy array with one where a box covers the feature
+    def __init__(self, covering_array, x_length, y_length):
+        self.x_length = None
+        self.y_length = None
+        self.covering_array = None # a numpy array with one where a box covers the feature
 
-    def get_box_size():
-        return x_length*y_length
+    def get_box_size(self):
+        """
+        Returns the size of the boxes that are used in the covering.  This can be in any units
+        but is typically in pixels of the initial feature raster.
+        """
+        return self.x_length*self.y_length
 
-    def get_covering size():
-        return covering_array.sum()
+    def get_covering_size(self):
+        """
+        Returns the total number of boxes in the covering
+        """
+        return np.sum(self.covering_array)
 
 class FractalFeature:
-    feature_raster = None # a numpy array
-    coverings = []
+    def __init__(self, feature, x_length=1, y_length=1):
+        feature_raster = None # a numpy array
+        self.x_length=None
+        self.y_length=None
+        coverings = [self]
 
-    def condition_grid(x_length, y_length):
+    def condition_grid(self, x_length, y_length):
+        """
+        This adds rows and columns of zeroes to make the grid is evenly visibile by the size of the covering boxes
+        """
         self.conditioned_grid = feature_raster
         feature_y, feature_x = self.feature.shape
         conditioned_x = feature_x
@@ -29,7 +43,29 @@ class FractalFeature:
             self.conditioned_grid = np.vstack(self.conditioned_grid, np.zeores(rows_to_add, conditioned_x))
             conditioned_y = conditioned_y+rows_to_add
 
-    def generate_covering(x_length, y_length):
+    def covering_score(covering, x_length, y_length):
+        covering_score = covering.x_length/x_length+covering.y_length/y_length
+        if covering_score>2:
+            covering_score = -1
+        return covering_score
+
+    def get_closest_covering(self, x_length, y_length):
+        closest_covering = max(self.coverings, key=lambda c: covering_score(c, x_length, y_length))
+        return closest_covering
+
+    def get_valid_subcoverings(self, x_length, y_length):
+        return [covering from self.coverings if (covering.x_length%x_length) + (covering.y_length%y_length)==0]
+
+    def get_cloest_valid_subcovering(self)
+        closest_covering = max(get_valid_subcoverings(self, key=lambda c: covering_score(c, x_length, y_length))
+
+    def generate_covering(x_length, y_length, smart=True):
+        closest_covering = get_closest_valid_covering(x_length, y_length)
+        if closest_covering!==self:
+            x_length= x_length/closest_covering.x_length
+            y_length = y_length/closest_covering.y_length
+            covering = generate_covering(closest_covering, x_length, y_length, smart)
+
         conditioned_grid(x_length, y_length)
         conditioned_x, conditioned_y = self.conditioned_grid.shape
         x_segments = conditioned_x/x_length
