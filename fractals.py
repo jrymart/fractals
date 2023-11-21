@@ -63,13 +63,14 @@ class FractalFeature:
         """
         Returns only coverings of sizes that are proper divisors of the desired covering size
         """
-        return [covering from self.coverings if (covering.x_length%x_length) + (covering.y_length%y_length)==0]
+        return [covering for covering in self.coverings if (covering.x_length%x_length) + (covering.y_length%y_length)==0]
 
-    def get_cloest_valid_subcovering(self)
+    def get_closest_valid_subcovering(self):
         """
         Returns the closest below covering that is a proper divisor of the deisred covering size
         """
-        closest_covering = max(get_valid_subcoverings(self, key=lambda c: covering_score(c, x_length, y_length))
+        closest_covering = max(get_valid_subcoverings(self, key=lambda c: covering_score(c, x_length, y_length)))
+        return closest_covering
 
     def generate_covering(self, x_length, y_length):
         """
@@ -81,7 +82,7 @@ class FractalFeature:
         y_segments = conditioned_y/y_length
         covering = np.array([
             list(map(np,sum, np.split(row_chunk,y_segments, axis=1)))
-            for row_chunk in np.split(self.feature_raster, x_segments, axis=0)]
+            for row_chunk in np.split(self.feature_raster, x_segments, axis=0)])
         covering = covering[covering>0]=1
         return covering
 
