@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import numpy as np
 
 class BoxCovering:
     def __init__(self, covering_array, x_length, y_length):
@@ -21,17 +22,17 @@ class BoxCovering:
 
 class FractalFeature:
     def __init__(self, feature, x_length=1, y_length=1):
-        feature_raster = None # a numpy array
-        self.x_length=None
-        self.y_length=None
-        coverings = [self]
+        self.feature_raster = feature# a numpy array
+        self.x_length=x_length
+        self.y_length=y_length
+        self.coverings = [self]
 
     def condition_grid(self, x_length, y_length):
         """
         This adds rows and columns of zeroes to make the grid is evenly visibile by the size of the covering boxes
         """
-        self.conditioned_grid = feature_raster
-        feature_y, feature_x = self.feature.shape
+        self.conditioned_grid = self.feature_raster
+        feature_y, feature_x = self.feature_raster.shape
         conditioned_x = feature_x
         conditioned_y = feature_y
         if feature_x%x_length != 0:
@@ -76,14 +77,14 @@ class FractalFeature:
         """
         Generates a new fractal object of the desired size
         """
-        condition_grid(x_length, y_length)
+        self.condition_grid(x_length, y_length)
         conditioned_x, conditioned_y = self.conditioned_grid.shape
         x_segments = conditioned_x/x_length
         y_segments = conditioned_y/y_length
         covering = np.array([
-            list(map(np,sum, np.split(row_chunk,y_segments, axis=1)))
+            list(map(np.sum, np.split(row_chunk,y_segments, axis=1)))
             for row_chunk in np.split(self.feature_raster, x_segments, axis=0)])
-        covering = covering[covering>0]=1
+        covering[covering>0]=1
         return covering
 
     def generate_covering_from_existing(self, x_length, y_length):
@@ -91,7 +92,7 @@ class FractalFeature:
         Generates a new fractal object of the desired size from the closest existing covering
         """
         closest_covering = get_closest_valid_covering(x_length, y_length)
-        if cloest_covering==self:
+        if closest_covering==self:
             covering = generate_covering(x_length, y_length)
         else:
             x_length= x_length/closest_covering.x_length
