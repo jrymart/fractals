@@ -40,17 +40,19 @@ class FractalFeature:
         """
         This adds rows and columns of zeroes to make the grid is evenly visibile by the size of the covering boxes
         """
+        #x_length= x_length//self.x_length
+        #y_length = y_length//self.y_length
         self.conditioned_grid = self.feature_raster
         feature_y, feature_x = self.feature_raster.shape
         conditioned_x = feature_x
         conditioned_y = feature_y
         if feature_x%x_length != 0:
             columns_to_add = x_length-(feature_x+x_length)%x_length
-            self.conditioned_grid = np.hstack(self.conditioned_grid, np.zeros(conditioned_y, columns_to_add))
+            self.conditioned_grid = np.hstack((self.conditioned_grid, np.zeros((conditioned_y, columns_to_add))))
             conditioned_x = conditioned_x+columns_to_add
         if feature_y%y_length != 0:
             rows_to_add = y_length-(feature_y+y_length)%y_length
-            self.conditioned_grid = np.vstack(self.conditioned_grid, np.zeros(rows_to_add, conditioned_x))
+            self.conditioned_grid = np.vstack((self.conditioned_grid, np.zeros((rows_to_add, conditioned_x))))
             conditioned_y = conditioned_y+rows_to_add
 
     def covering_score(covering, x_length, y_length):
@@ -86,13 +88,15 @@ class FractalFeature:
         """
         Generates a new fractal object of the desired size
         """
+        x_length= x_length//self.x_length
+        y_length = y_length//self.y_length
         self.condition_grid(x_length, y_length)
-        conditioned_x, conditioned_y = self.conditioned_grid.shape
+        conditioned_y, conditioned_x = self.conditioned_grid.shape
         x_segments = conditioned_x/x_length
         y_segments = conditioned_y/y_length
         covering = np.array([
-            list(map(np.sum, np.split(row_chunk,y_segments, axis=1)))
-            for row_chunk in np.split(self.feature_raster, x_segments, axis=0)])
+            list(map(np.sum, np.split(row_chunk,x_segments, axis=1)))
+            for row_chunk in np.split(self.conditioned_grid, y_segments, axis=0)])
         covering[covering>0]=1
         covering_object= FractalFeature(covering, x_length, y_length)
         return covering_object
@@ -107,7 +111,7 @@ class FractalFeature:
             if existing:
                 covering = self.generate_covering_from_existing(x_length, y_length)
             else:
-                covering = self.generate_covering(2,2)
+                covering = self.generate_covering(x_length, y_length)
             self.coverings.append(covering)
         else:
             raise Exception("No covering or generating parameters provided")
