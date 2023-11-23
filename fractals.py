@@ -46,11 +46,11 @@ class FractalFeature:
         conditioned_y = feature_y
         if feature_x%x_length != 0:
             columns_to_add = x_length-(feature_x+x_length)%x_length
-            self.conditioned_grid = np.hstack(self.conditioned_grid, np.zeroes(conditioned_y, columns_to_add))
+            self.conditioned_grid = np.hstack(self.conditioned_grid, np.zeros(conditioned_y, columns_to_add))
             conditioned_x = conditioned_x+columns_to_add
         if feature_y%y_length != 0:
             rows_to_add = y_length-(feature_y+y_length)%y_length
-            self.conditioned_grid = np.vstack(self.conditioned_grid, np.zeores(rows_to_add, conditioned_x))
+            self.conditioned_grid = np.vstack(self.conditioned_grid, np.zeros(rows_to_add, conditioned_x))
             conditioned_y = conditioned_y+rows_to_add
 
     def covering_score(covering, x_length, y_length):
@@ -73,7 +73,7 @@ class FractalFeature:
         """
         Returns only coverings of sizes that are proper divisors of the desired covering size
         """
-        return [covering for covering in self.coverings if (x_length%covering.x_length) + (y_length%covering.y_length)==0]
+        return [covering for covering in self.coverings if ((x_length%covering.x_length) + (y_length%covering.y_length))==0]
 
     def get_closest_valid_subcovering(self, x_length, y_length):
         """
@@ -94,7 +94,8 @@ class FractalFeature:
             list(map(np.sum, np.split(row_chunk,y_segments, axis=1)))
             for row_chunk in np.split(self.feature_raster, x_segments, axis=0)])
         covering[covering>0]=1
-        return covering
+        covering_object= FractalFeature(covering, x_length, y_length)
+        return covering_object
 
     def add_covering(self, covering=None, x_length=None, y_length=None, existing=True):
         """ adds a covering to the list of coverings.  Either a provided covering or a new one is generated"""
@@ -119,7 +120,7 @@ class FractalFeature:
         if closest_covering==self:
             covering = self.generate_covering(x_length, y_length)
         else:
-            x_length= x_length/closest_covering.x_length
-            y_length = y_length/closest_covering.y_length
+            #x_length= x_length/closest_covering.x_length
+            #y_length = y_length/closest_covering.y_length
             covering = closest_covering.generate_covering_from_existing(x_length, y_length)
         return covering
