@@ -35,6 +35,12 @@ class FractalFeature:
         self.x_length=x_length
         self.y_length=y_length
         self.coverings = [self]
+        self.covering_points = [(np.sqrt(x_length*y_length), np.sum(feature))]
+
+    def return_covering_points(self):
+        box_lengths = np.array([p[0] for p in self.covering_points])
+        box_numbers = np.array([p[1] for p in self.covering_points])
+        return box_lengths, box_numbers
 
     def condition_grid(self, x_length, y_length):
         """
@@ -113,8 +119,10 @@ class FractalFeature:
             else:
                 covering = self.generate_covering(x_length, y_length)
             self.coverings.append(covering)
+
         else:
             raise Exception("No covering or generating parameters provided")
+        self.covering_points.append((np.sqrt(covering.x_length*covering.y_length), np.sum(covering.feature_raster)))
 
     def generate_covering_from_existing(self, x_length, y_length):
         """
