@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import numpy as np
+from osgeo import gdal
+import os
+from pathlib import Path
 
 def covering_score(covering, x_length, y_length):
         """
@@ -28,6 +31,36 @@ class BoxCovering:
         Returns the total number of boxes in the covering
         """
         return np.sum(self.covering_array)
+
+class GdalFractal:
+    def __init__(self, shapefile_path, raster_directory, initial_res):
+        self.shapefile_path = shapefile_path
+        self.raster_directory = raster_directory
+        Path(raster_directory).mkdir(parents=True, exist_ok=True)
+        self.raster_format='GTIFF'
+        self.creation_options=["COMPRESS=DEFLATE"]
+        self.covering_points = []
+        self.add_covering(initial_res)
+
+    def add_covering(self, resolution):
+        covering_name = "fractal_%d.tif" % resolution
+        covering_path = os.path.join(self.raster_directory, covering_name)
+        covering_object = gdal.Rasterize(covering_path, self.shapefile_path, format=self.raster_format,
+                                  creationOptions=self.creation_options, noData=0, initValues=1,
+                                  xRes=resolution, yRes=-resolution, allTouched=True, burnValues=1)
+        covering_object = None
+        print(covering_path)
+        covering = gdal.Open(covering_path)
+        covering_array = covering.ReadAsArray()
+        covering = None
+        self.covering_points.append((resolution, np.sum(covering_array)))
+        covering_array = None
+
+    def return_covering_points(self):
+        box_lengths = np.array([p[0] for p in self.covering_points])
+        box_numbers = np.array([p[1] for p in self.covering_points])
+        return box_lengths, box_numbers
+
 
 class FractalFeature:
     def __init__(self, feature, x_length=1, y_length=1):
